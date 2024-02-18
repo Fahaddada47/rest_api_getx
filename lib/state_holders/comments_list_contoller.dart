@@ -1,32 +1,34 @@
-
-
 import 'package:get/get.dart';
 import 'package:restapiwithgets/data/models/CommentsModel.dart';
-
 import 'package:restapiwithgets/data/services/network_caller.dart';
-import 'package:restapiwithgets/data/utility/urls.dart';
-
 
 class CommentsController extends GetxController {
   final List<CommentsModel> commentList = <CommentsModel>[];
-  bool getCommentsInProgress = false;
+  final RxBool getCommentsInProgress = false.obs; // Use RxBool
 
   Future<void> getCommentApi() async {
-    // final url = "https://jsonplaceholder.typicode.com/comments";
-    getCommentsInProgress = true;
-
     try {
+      print("Fetching comments...");
+      getCommentsInProgress.value = true;
+
       final List<CommentsModel> comments = await NetworkCaller.getApi(
-      Urls.verifyComments(),
-            (data) => CommentsModel.fromJson(data),
+        'https://jsonplaceholder.typicode.com/comments',
+        (data) => CommentsModel.fromJson(data),
       );
 
       commentList.assignAll(comments);
-      print(commentList);
-    } finally {
-      getCommentsInProgress = false; // Change from true to false
-      print(commentList);
+      print("Fetched ${commentList.length} comments");
+    } catch (e) {
+      print("Error in getCommentApi: $e");
 
+      Get.snackbar("Error", "Failed to fetch comments. Please try again.");
+    } finally {
+      getCommentsInProgress.value = false;
+      print("Comments fetching complete.");
     }
+  }
+
+  void updateGetCommentsInProgress(bool value) {
+    getCommentsInProgress.value = value;
   }
 }

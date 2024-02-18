@@ -1,55 +1,51 @@
-
 class CommentsModel {
+  final num postId;
+  final num id;
+  final String name;
+  final String email;
+  final String body;
+
   CommentsModel({
+    required this.postId,
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.body,
+  });
+
+  factory CommentsModel.fromJson(Map<String, dynamic> json) {
+    return CommentsModel(
+      postId: json['postId'] ?? 0,
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      body: json['body'] ?? '',
+    );
+  }
+
+  CommentsModel copyWith({
     num? postId,
     num? id,
     String? name,
     String? email,
-    String? body,}){
-    _postId = postId;
-    _id = id;
-    _name = name;
-    _email = email;
-    _body = body;
-  }
-
-  CommentsModel.fromJson(dynamic json) {
-    _postId = json['postId'];
-    _id = json['id'];
-    _name = json['name'];
-    _email = json['email'];
-    _body = json['body'];
-  }
-  num? _postId;
-  num? _id;
-  String? _name;
-  String? _email;
-  String? _body;
-  CommentsModel copyWith({  num? postId,
-    num? id,
-    String? name,
-    String? email,
     String? body,
-  }) => CommentsModel(  postId: postId ?? _postId,
-    id: id ?? _id,
-    name: name ?? _name,
-    email: email ?? _email,
-    body: body ?? _body,
-  );
-  num? get postId => _postId;
-  num? get id => _id;
-  String? get name => _name;
-  String? get email => _email;
-  String? get body => _body;
+  }) {
+    return CommentsModel(
+      postId: postId ?? this.postId,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      body: body ?? this.body,
+    );
+  }
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['postId'] = _postId;
-    map['id'] = _id;
-    map['name'] = _name;
-    map['email'] = _email;
-    map['body'] = _body;
-    return map;
+    return {
+      'postId': postId,
+      'id': id,
+      'name': name,
+      'email': email,
+      'body': body,
+    };
   }
-
 }

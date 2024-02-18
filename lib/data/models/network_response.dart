@@ -6,4 +6,6 @@ class NetworkResponse {
   NetworkResponse(this.isSuccess, this.statusCode, this.responseJson);
 
   get data => null;
+
+
 }

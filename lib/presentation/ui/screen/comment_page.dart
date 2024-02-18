@@ -10,60 +10,72 @@ class CommentPage extends StatefulWidget {
 }
 
 class _CommentPageState extends State<CommentPage> {
+  bool _isInitialized = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-          (_) => Get.find<CommentsController>().getCommentApi(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isInitialized) {
+        final controller = Get.find<CommentsController>();
+        controller.getCommentApi();
+        _isInitialized = true;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    print("Building CommentPage");
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Comments"),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Get.find<CommentsController>().getCommentApi();
-        },
-        child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GetBuilder<CommentsController>(
-        builder: (commentsController) {
-          if (commentsController.getCommentsInProgress) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+      body: Obx(() {
+        final controller = Get.find<CommentsController>();
 
-          return GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: commentsController.commentList.length,
-            itemBuilder: (context, index) {
-              final email = commentsController.commentList[index].email.toString();
-              final name = commentsController.commentList[index].name.toString();
-              return Container(
-                height: 100,
-                child: Column(
-                  children: [
-                    Text(email),
-                    Text(name),
-                  ],
-                ),
-              );
-            },
+        if (controller.getCommentsInProgress.value) {
+          return Center(
+            child: CircularProgressIndicator(),
           );
-        },
-      ),
-    ),
-
-    ),
+        }
+        if (controller.commentList.isEmpty) {
+          return Center(
+            child: Text("No comments available."),
+          );
+        }
+        return RefreshIndicator(
+          onRefresh: () async {
+            await controller.getCommentApi();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: controller.commentList.length,
+              itemBuilder: (context, index) {
+                final email = controller.commentList[index].email.toString();
+                final name = controller.commentList[index].name.toString();
+                return Container(
+                  height: 100,
+                  child: Column(
+                    children: [
+                      Text(index.toString()),
+                      Text(email),
+                      Text(name),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      }),
     );
   }
 }
